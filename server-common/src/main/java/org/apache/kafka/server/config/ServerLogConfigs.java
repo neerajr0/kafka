@@ -73,6 +73,14 @@ public class ServerLogConfigs {
     public static final String LOG_CLEANUP_POLICY_DEFAULT = TopicConfig.CLEANUP_POLICY_DELETE;
     public static final String LOG_CLEANUP_POLICY_DOC = "The default cleanup policy for segments beyond the retention window. A comma separated list of valid policies.";
 
+    public static final String LOG_DIR_DISK_CHECK_INTERVAL_MS_CONFIG = LOG_PREFIX + "dir.disk.check.interval.ms";
+    public static final long LOG_DIR_DISK_CHECK_INTERVAL_MS_DEFAULT = -1L; // Disabled by default
+    public static final String LOG_DIR_DISK_CHECK_INTERVAL_MS_DOC = "The frequency in milliseconds that the disk manager checks whether the log directory will fill assuming maximum throughput. Set to -1 to disable.";
+
+    public static final String LOG_DIR_DISK_MAX_THROUGHPUT_BYTES_CONFIG = LOG_PREFIX + "dir.disk.max.throughput.bytes";
+    public static final long LOG_DIR_DISK_MAX_THROUGHPUT_BYTES_DEFAULT = Long.MAX_VALUE;
+    public static final String LOG_DIR_DISK_MAX_THROUGHPUT_BYTES_DOC = "The maximum throughput that the log directory can sustain for the broker volume. Used with " + LOG_DIR_DISK_CHECK_INTERVAL_MS_CONFIG + " to determine whether broker";
+
     public static final String LOG_INDEX_SIZE_MAX_BYTES_CONFIG = ServerTopicConfigSynonyms.serverSynonym(TopicConfig.SEGMENT_INDEX_BYTES_CONFIG);
     public static final int LOG_INDEX_SIZE_MAX_BYTES_DEFAULT = 10 * 1024 * 1024;
     public static final String LOG_INDEX_SIZE_MAX_BYTES_DOC = "The maximum size in bytes of the offset index";

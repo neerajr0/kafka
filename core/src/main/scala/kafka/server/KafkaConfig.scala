@@ -329,6 +329,8 @@ class KafkaConfig private(doLog: Boolean, val props: util.Map[_, _])
   val logFlushOffsetCheckpointIntervalMs = getInt(ServerLogConfigs.LOG_FLUSH_OFFSET_CHECKPOINT_INTERVAL_MS_CONFIG).toLong
   val logFlushStartOffsetCheckpointIntervalMs = getInt(ServerLogConfigs.LOG_FLUSH_START_OFFSET_CHECKPOINT_INTERVAL_MS_CONFIG).toLong
   val logCleanupIntervalMs = getLong(ServerLogConfigs.LOG_CLEANUP_INTERVAL_MS_CONFIG)
+  val logDirDiskCheckIntervalMs = getLong(ServerLogConfigs.LOG_DIR_DISK_CHECK_INTERVAL_MS_CONFIG)
+  val logDirDiskMaxThroughputBytes = getLong(ServerLogConfigs.LOG_DIR_DISK_MAX_THROUGHPUT_BYTES_CONFIG)
   def logCleanupPolicy = getList(ServerLogConfigs.LOG_CLEANUP_POLICY_CONFIG)
 
   def logRetentionBytes = getLong(ServerLogConfigs.LOG_RETENTION_BYTES_CONFIG)
