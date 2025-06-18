@@ -248,6 +248,10 @@ class BrokerLifecycleManager(
     initialUnfenceFuture
   }
 
+  def setWantFence(): Unit = {
+    eventQueue.append(new SetWantFenceEvent())
+  }
+
   /**
    * Propagate directory failures to the controller.
    * @param directory The ID for the directory that failed.
@@ -321,6 +325,15 @@ class BrokerLifecycleManager(
   private class SetReadyToUnfenceEvent extends EventQueue.Event {
     override def run(): Unit = {
       readyToUnfence = true
+      info("Unfencing broker!")
+      scheduleNextCommunicationImmediately()
+    }
+  }
+
+  private class SetWantFenceEvent extends EventQueue.Event {
+    override def run(): Unit = {
+      readyToUnfence = false
+      info("Fencing broker!")
       scheduleNextCommunicationImmediately()
     }
   }

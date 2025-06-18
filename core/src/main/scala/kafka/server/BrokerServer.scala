@@ -137,6 +137,8 @@ class BrokerServer(
 
   var autoTopicCreationManager: AutoTopicCreationManager = _
 
+  var diskManager: DiskManager = _
+
   var kafkaScheduler: KafkaScheduler = _
 
   @volatile var metadataCache: KRaftMetadataCache = _
@@ -226,6 +228,21 @@ class BrokerServer(
         s"broker-${config.nodeId}-",
         logDirs = logManager.directoryIdsSet,
         () => new Thread(() => shutdown(), "kafka-shutdown-thread").start())
+
+      /* start disk manager */
+      if (config.logDirDiskCheckIntervalMs > 0) {
+        info(s"[DISK-MANAGER] Starting DiskManager with checkInterval=${config.logDirDiskCheckIntervalMs}")
+        diskManager = new DiskManager(
+          config.logDirDiskCheckIntervalMs,
+          config.logDirDiskMaxThroughputBytes,
+          config.logDirs().asScala.head,
+          kafkaScheduler,
+          lifecycleManager
+        )
+        diskManager.startup()
+      } else {
+        info("[DISK-MANAGER] DiskManager is disabled")
+      }
 
       // Enable delegation token cache for all SCRAM mechanisms to simplify dynamic update.
       // This keeps the cache up-to-date if new SCRAM mechanisms are enabled dynamically.

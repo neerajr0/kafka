@@ -975,11 +975,28 @@ class KafkaApis(val requestChannel: RequestChannel,
     val completeTopicMetadata =  unknownTopicIdsTopicMetadata ++
       topicMetadata ++ unauthorizedForCreateTopicMetadata ++ unauthorizedForDescribeTopicMetadata
 
-    val brokers = metadataCache.getAliveBrokerNodes(request.context.listenerName)
+    val aliveBrokers = metadataCache.getAliveBrokerNodes(request.context.listenerName)
+    var controllerId = metadataCache.getRandomAliveBrokerId.orElse(MetadataResponse.NO_CONTROLLER_ID)
+
+    val brokers =
+      if (!aliveBrokers.isEmpty) {
+        aliveBrokers
+      } else {
+        // fallback: return one broker even if all are fenced
+        val anyBrokerOpt = metadataCache.getBrokerNodes(request.context.listenerName).asScala.headOption
+        anyBrokerOpt match {
+          case Some(node) =>
+            info(s"All brokers are fenced. Including broker ${node.id} in metadata response to enable client communication.")
+            controllerId = node.id()
+            Collections.singleton(node)
+          case None =>
+            info("No brokers (even fenced) available to return in metadata response.")
+            Collections.emptySet[Node]()
+        }
+      }
 
     trace("Sending topic metadata %s and brokers %s for correlation id %d to client %s".format(completeTopicMetadata.mkString(","),
       brokers.asScala.mkString(","), request.header.correlationId, request.header.clientId))
-    val controllerId = metadataCache.getRandomAliveBrokerId.orElse(MetadataResponse.NO_CONTROLLER_ID)
 
     requestHelper.sendResponseMaybeThrottle(request, requestThrottleMs =>
        MetadataResponse.prepareResponse(
